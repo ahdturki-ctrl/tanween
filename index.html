@@ -6,25 +6,40 @@
   <title>كويز التنوين</title>
   <style>
     :root{
-      --bg:#ffffff;
-      --card:#f6f7fb;
+      --bg1:#ffe6f1;
+      --bg2:#ffd1e6;
+      --card:#ffffffcc;
       --text:#111;
-      --muted:#555;
-      --border:#d9dbe7;
+      --muted:#6b4b57;
+      --border:#f0b9d1;
+      --accent:#ff4fa3;
+      --star:#ffd34d;
     }
+
     body{
       margin:0;
       font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
-      background: var(--bg);
       color: var(--text);
       line-height: 1.7;
       font-size: 26px;
+
+      /* خلفية وردية احتفالية (بدون صور) */
+      background:
+        radial-gradient(30px 30px at 12% 18%, rgba(255,255,255,.55), transparent 60%),
+        radial-gradient(24px 24px at 78% 22%, rgba(255,255,255,.45), transparent 60%),
+        radial-gradient(18px 18px at 30% 70%, rgba(255,255,255,.35), transparent 60%),
+        radial-gradient(22px 22px at 85% 78%, rgba(255,255,255,.35), transparent 60%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      min-height: 100vh;
     }
+
     .wrap{
       max-width: 900px;
       margin: 24px auto;
       padding: 0 16px;
+      position: relative;
     }
+
     header{
       display:flex;
       justify-content:space-between;
@@ -33,60 +48,149 @@
       flex-wrap:wrap;
       margin-bottom: 14px;
     }
+
     h1{
       margin:0;
       font-size: 34px;
-      font-weight: 800;
+      font-weight: 900;
+      letter-spacing: .2px;
     }
+
     .counter{
       padding: 8px 14px;
       border: 1px solid var(--border);
       border-radius: 999px;
-      background: var(--card);
+      background: rgba(255,255,255,.65);
       color: var(--muted);
       font-size: 18px;
       white-space: nowrap;
+      backdrop-filter: blur(6px);
     }
+
     .card{
+      position: relative;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 18px;
       min-height: calc(100vh - 150px);
+      overflow: hidden;
+      backdrop-filter: blur(8px);
     }
+
+    /* زينة خفيفة داخل البطاقة */
+    .card::before,
+    .card::after{
+      content:"";
+      position:absolute;
+      inset:auto;
+      pointer-events:none;
+      opacity:.65;
+      filter: blur(.2px);
+    }
+    .card::before{
+      width: 240px; height: 240px;
+      top: -120px; left: -120px;
+      background: radial-gradient(circle at 35% 35%, rgba(255,79,163,.25), transparent 60%);
+      border-radius: 50%;
+    }
+    .card::after{
+      width: 260px; height: 260px;
+      bottom: -130px; right: -130px;
+      background: radial-gradient(circle at 60% 55%, rgba(255,211,77,.22), transparent 62%);
+      border-radius: 50%;
+    }
+
     .qtitle{
-      font-weight: 800;
+      font-weight: 900;
       font-size: 22px;
       color: var(--muted);
       margin-bottom: 8px;
     }
     .prompt{
       font-size: 30px;
-      font-weight: 800;
+      font-weight: 900;
       margin: 8px 0 14px;
     }
     .opts{
       display:grid;
       gap: 12px;
       margin-top: 10px;
+      position: relative;
+      z-index: 1;
     }
     label.opt{
       display:flex;
       gap: 12px;
       align-items:flex-start;
       padding: 14px 12px;
-      border: 1px solid var(--border);
+      border: 1px solid rgba(240,185,209,.9);
       border-radius: 14px;
-      background:#fff;
+      background: rgba(255,255,255,.9);
       cursor:pointer;
+      transition: transform .08s ease, box-shadow .12s ease, border-color .12s ease;
+    }
+    label.opt:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 8px 18px rgba(0,0,0,.06);
+      border-color: rgba(255,79,163,.35);
     }
     input[type="radio"]{
       transform: scale(1.4);
       margin-top: 7px;
+      accent-color: var(--accent);
     }
+
+    /* طبقة الاحتفال (تظهر فقط عند الإجابة الصحيحة) */
+    .celebrate{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity: 0;
+      z-index: 10;
+    }
+    .celebrate.show{
+      opacity: 1;
+    }
+
+    /* نجوم طائرة */
+    .star{
+      position:absolute;
+      width: 18px;
+      height: 18px;
+      background: var(--star);
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 92%, 50% 71%, 21% 92%, 32% 57%, 2% 35%, 39% 35%);
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
+      opacity: .95;
+      animation: fly 650ms ease-out forwards;
+    }
+
+    /* لمعة وردية بسيطة */
+    .flash{
+      position:absolute;
+      inset:0;
+      background: radial-gradient(circle at 50% 40%, rgba(255,79,163,.22), transparent 55%);
+      opacity: 0;
+      animation: flash 650ms ease-out forwards;
+    }
+
+    @keyframes fly{
+      0%   { transform: translate(var(--sx), var(--sy)) scale(.85) rotate(0deg); opacity: 0; }
+      12%  { opacity: 1; }
+      100% { transform: translate(var(--ex), var(--ey)) scale(1.25) rotate(210deg); opacity: 0; }
+    }
+    @keyframes flash{
+      0% { opacity: 0; }
+      18% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* صفحة النهاية (بدون نتيجة) */
     .end{
       text-align:center;
-      padding-top: 40px;
+      padding-top: 44px;
+      position: relative;
+      z-index: 1;
     }
     .end h2{
       margin: 0 0 12px;
@@ -98,9 +202,13 @@
       padding: 10px 14px;
       border-radius: 12px;
       border: 1px solid var(--border);
-      background:#fff;
+      background: rgba(255,255,255,.9);
       cursor:pointer;
-      margin-top: 10px;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .star, .flash { animation: none !important; }
+      label.opt:hover{ transform:none; box-shadow:none; }
     }
   </style>
 </head>
@@ -118,62 +226,73 @@
   const QUESTIONS = [
     {
       prompt: "ما نوع التنوين في كلمة: (كِتابٌ)؟",
-      options: ["تنوين ضمّ (ـٌ)", "تنوين فتح (ـً)", "تنوين كسر (ـٍ)"]
+      options: ["تنوين ضمّ (ـٌ)", "تنوين فتح (ـً)", "تنوين كسر (ـٍ)"],
+      answerIndex: 0
     },
     {
       prompt: "اختاري الكلمة التي فيها تنوين فتح:",
-      options: ["بَيْتٌ", "قَلَمًا", "طَالِبٍ"]
+      options: ["بَيْتٌ", "قَلَمًا", "طَالِبٍ"],
+      answerIndex: 1
     },
     {
       prompt: "اختاري الكلمة التي فيها تنوين كسر:",
-      options: ["وَلَدٌ", "مَدْرَسَةً", "طِفْلٍ"]
+      options: ["وَلَدٌ", "مَدْرَسَةً", "طِفْلٍ"],
+      answerIndex: 2
     },
     {
       prompt: "كم نوعًا للتنوين ندرس هنا؟",
-      options: ["نوع واحد", "نوعان", "ثلاثة أنواع"]
+      options: ["نوع واحد", "نوعان", "ثلاثة أنواع"],
+      answerIndex: 2
     },
     {
       prompt: "اختاري الشكل الصحيح لنهاية كلمة (باب) عند تنوين الضم:",
-      options: ["بابٌ", "بابًا", "بابٍ"]
+      options: ["بابٌ", "بابًا", "بابٍ"],
+      answerIndex: 0
     },
     {
       prompt: "اختاري الشكل الصحيح لنهاية كلمة (نور) عند تنوين الفتح:",
-      options: ["نورٌ", "نورًا", "نورٍ"]
+      options: ["نورٌ", "نورًا", "نورٍ"],
+      answerIndex: 1
     },
     {
       prompt: "اختاري الشكل الصحيح لنهاية كلمة (بيت) عند تنوين الكسر:",
-      options: ["بيتٌ", "بيتًا", "بيتٍ"]
+      options: ["بيتٌ", "بيتًا", "بيتٍ"],
+      answerIndex: 2
     },
     {
       prompt: "أي كلمة تنتهي بتنوين ضم؟",
-      options: ["مُعَلِّمٌ", "مُعَلِّمًا", "مُعَلِّمٍ"]
+      options: ["مُعَلِّمٌ", "مُعَلِّمًا", "مُعَلِّمٍ"],
+      answerIndex: 0
     },
     {
       prompt: "اختاري الجملة الصحيحة بالتنوين:",
-      options: ["قَرَأْتُ كِتابٌ.", "قَرَأْتُ كِكتابًا.", "قَرَأْتُ كِتابٍ."]
+      options: ["قَرَأْتُ كِتابٌ.", "قَرَأْتُ كِتابًا.", "قَرَأْتُ كِتابٍ."],
+      answerIndex: 1
     },
     {
       prompt: "اختاري الجملة التي فيها تنوين كسر:",
-      options: ["فِي فَصْلٍ نَتَعَلَّمُ.", "فِي فَصْلٌ نَتَعَلَّمُ.", "فِي فَصْلًا نَتَعَلَّمُ."]
+      options: ["فِي فَصْلٍ نَتَعَلَّمُ.", "فِي فَصْلٌ نَتَعَلَّمُ.", "فِي فَصْلًا نَتَعَلَّمُ."],
+      answerIndex: 0
     },
     {
       prompt: "اختاري الكلمة التي آخرها (ـً):",
-      options: ["قَلَمًا", "قَلَمٌ", "قَلَمٍ"]
+      options: ["قَلَمًا", "قَلَمٌ", "قَلَمٍ"],
+      answerIndex: 0
     },
     {
       prompt: "أي رمز يدل على تنوين الكسر؟",
-      options: ["ـٌ", "ـً", "ـٍ"]
+      options: ["ـٌ", "ـً", "ـٍ"],
+      answerIndex: 2
     }
   ];
 
   let idx = 0;
-
   const cardEl = document.getElementById("card");
   const counterEl = document.getElementById("counter");
 
   function render(){
     if(idx >= QUESTIONS.length){
-      counterEl.textContent = `انتهى`;
+      counterEl.textContent = "انتهى";
       cardEl.innerHTML = `
         <div class="end">
           <h2>انتهى الكويز</h2>
@@ -195,6 +314,11 @@
       <div class="qtitle">السؤال ${idx+1}</div>
       <div class="prompt">${q.prompt}</div>
       <div class="opts" id="opts"></div>
+
+      <!-- طبقة الاحتفال -->
+      <div class="celebrate" id="celebrate" aria-hidden="true">
+        <div class="flash"></div>
+      </div>
     `;
 
     const optsEl = document.getElementById("opts");
@@ -217,19 +341,80 @@
       label.appendChild(span);
       optsEl.appendChild(label);
 
-      radio.addEventListener("change", () => {
-        // انتقال تلقائي مباشرة بعد الاختيار
-        setTimeout(() => {
-          idx++;
-          render();
-          window.scrollTo({top:0, behavior:"smooth"});
-        }, 180);
-      });
+      radio.addEventListener("change", () => onAnswer(j === q.answerIndex));
     });
+  }
+
+  function onAnswer(isCorrect){
+    if(isCorrect){
+      playCelebrate();
+      setTimeout(next, 650);
+    }else{
+      // بدون عقوبة/رسالة: انتقال سريع
+      setTimeout(next, 220);
+    }
+  }
+
+  function next(){
+    idx++;
+    render();
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  function playCelebrate(){
+    const layer = document.getElementById("celebrate");
+    if(!layer) return;
+
+    // تنظيف أي نجوم قديمة
+    layer.querySelectorAll(".star").forEach(s => s.remove());
+
+    // إظهار الطبقة
+    layer.classList.add("show");
+
+    // توليد نجوم عشوائية
+    const starsCount = 14;
+    for(let i=0; i<starsCount; i++){
+      const s = document.createElement("div");
+      s.className = "star";
+
+      // نقطة بداية (قريبة من منتصف البطاقة)
+      const sx = (Math.random()*40 - 20); // -20..20
+      const sy = (Math.random()*20 - 10); // -10..10
+
+      // نقطة نهاية (تنتشر للأطراف)
+      const ex = (Math.random()*520 - 260); // -260..260
+      const ey = (Math.random()*360 - 180); // -180..180
+
+      // موقع النجمة داخل البطاقة
+      const left = 50 + (Math.random()*26 - 13); // حول المنتصف
+      const top  = 45 + (Math.random()*18 - 9);
+
+      s.style.left = left + "%";
+      s.style.top  = top + "%";
+
+      // تمرير قيم للحركة
+      s.style.setProperty("--sx", sx + "px");
+      s.style.setProperty("--sy", sy + "px");
+      s.style.setProperty("--ex", ex + "px");
+      s.style.setProperty("--ey", ey + "px");
+
+      // اختلاف بسيط في الأحجام والتأخير
+      const size = 14 + Math.floor(Math.random()*14);
+      s.style.width = size + "px";
+      s.style.height = size + "px";
+      s.style.animationDelay = (Math.random()*90) + "ms";
+
+      layer.appendChild(s);
+    }
+
+    // إخفاء الطبقة بعد الانتهاء
+    setTimeout(() => {
+      layer.classList.remove("show");
+      layer.querySelectorAll(".star").forEach(s => s.remove());
+    }, 700);
   }
 
   render();
 </script>
 </body>
 </html>
-```
