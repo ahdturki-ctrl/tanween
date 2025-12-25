@@ -6,14 +6,15 @@
   <title>كويز التنوين</title>
   <style>
     :root{
-      --bg1:#ffe6f1;
-      --bg2:#ffd1e6;
+      --bg1:#ffe1f0;
+      --bg2:#ffc7e2;
       --card:#ffffffcc;
       --text:#111;
       --muted:#6b4b57;
       --border:#f0b9d1;
       --accent:#ff4fa3;
       --star:#ffd34d;
+      --spark:#ffffff;
     }
 
     body{
@@ -22,15 +23,47 @@
       color: var(--text);
       line-height: 1.7;
       font-size: 26px;
-
-      /* خلفية وردية احتفالية (بدون صور) */
+      min-height: 100vh;
       background:
-        radial-gradient(30px 30px at 12% 18%, rgba(255,255,255,.55), transparent 60%),
-        radial-gradient(24px 24px at 78% 22%, rgba(255,255,255,.45), transparent 60%),
+        radial-gradient(26px 26px at 12% 18%, rgba(255,255,255,.55), transparent 60%),
+        radial-gradient(22px 22px at 78% 22%, rgba(255,255,255,.45), transparent 60%),
         radial-gradient(18px 18px at 30% 70%, rgba(255,255,255,.35), transparent 60%),
         radial-gradient(22px 22px at 85% 78%, rgba(255,255,255,.35), transparent 60%),
         linear-gradient(135deg, var(--bg1), var(--bg2));
-      min-height: 100vh;
+    }
+
+    /* رموز/زينة عامة على الصفحة */
+    .page-decor{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: .55;
+    }
+    .page-decor::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(10px 10px at 8% 12%, rgba(255,255,255,.65), transparent 60%),
+        radial-gradient(12px 12px at 92% 18%, rgba(255,255,255,.55), transparent 60%),
+        radial-gradient(9px 9px at 20% 80%, rgba(255,255,255,.5), transparent 60%),
+        radial-gradient(11px 11px at 88% 86%, rgba(255,255,255,.45), transparent 60%),
+        radial-gradient(14px 14px at 50% 10%, rgba(255,255,255,.35), transparent 60%),
+        radial-gradient(16px 16px at 50% 92%, rgba(255,255,255,.30), transparent 60%);
+      filter: blur(.1px);
+    }
+    .page-icon{
+      position:absolute;
+      font-size: 34px;
+      opacity: .75;
+      filter: drop-shadow(0 10px 14px rgba(0,0,0,.08));
+      transform: rotate(var(--rot));
+      animation: floaty var(--dur) ease-in-out infinite;
+    }
+    @keyframes floaty{
+      0%,100%{ transform: translateY(0) rotate(var(--rot)); }
+      50%{ transform: translateY(-10px) rotate(var(--rot)); }
     }
 
     .wrap{
@@ -38,6 +71,7 @@
       margin: 24px auto;
       padding: 0 16px;
       position: relative;
+      z-index: 1; /* فوق الزينة العامة */
     }
 
     header{
@@ -78,26 +112,23 @@
       backdrop-filter: blur(8px);
     }
 
-    /* زينة خفيفة داخل البطاقة */
     .card::before,
     .card::after{
       content:"";
       position:absolute;
-      inset:auto;
       pointer-events:none;
-      opacity:.65;
-      filter: blur(.2px);
+      opacity:.7;
     }
     .card::before{
-      width: 240px; height: 240px;
-      top: -120px; left: -120px;
-      background: radial-gradient(circle at 35% 35%, rgba(255,79,163,.25), transparent 60%);
+      width: 280px; height: 280px;
+      top: -140px; left: -140px;
+      background: radial-gradient(circle at 35% 35%, rgba(255,79,163,.28), transparent 60%);
       border-radius: 50%;
     }
     .card::after{
-      width: 260px; height: 260px;
-      bottom: -130px; right: -130px;
-      background: radial-gradient(circle at 60% 55%, rgba(255,211,77,.22), transparent 62%);
+      width: 300px; height: 300px;
+      bottom: -150px; right: -150px;
+      background: radial-gradient(circle at 60% 55%, rgba(255,211,77,.25), transparent 62%);
       border-radius: 50%;
     }
 
@@ -106,11 +137,15 @@
       font-size: 22px;
       color: var(--muted);
       margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
     }
     .prompt{
       font-size: 30px;
       font-weight: 900;
       margin: 8px 0 14px;
+      position: relative;
+      z-index: 1;
     }
     .opts{
       display:grid;
@@ -124,16 +159,16 @@
       gap: 12px;
       align-items:flex-start;
       padding: 14px 12px;
-      border: 1px solid rgba(240,185,209,.9);
+      border: 1px solid rgba(240,185,209,.95);
       border-radius: 14px;
-      background: rgba(255,255,255,.9);
+      background: rgba(255,255,255,.92);
       cursor:pointer;
       transition: transform .08s ease, box-shadow .12s ease, border-color .12s ease;
     }
     label.opt:hover{
       transform: translateY(-1px);
-      box-shadow: 0 8px 18px rgba(0,0,0,.06);
-      border-color: rgba(255,79,163,.35);
+      box-shadow: 0 10px 22px rgba(0,0,0,.07);
+      border-color: rgba(255,79,163,.4);
     }
     input[type="radio"]{
       transform: scale(1.4);
@@ -141,7 +176,7 @@
       accent-color: var(--accent);
     }
 
-    /* طبقة الاحتفال (تظهر فقط عند الإجابة الصحيحة) */
+    /* احتفال أكبر */
     .celebrate{
       position:absolute;
       inset:0;
@@ -149,54 +184,84 @@
       opacity: 0;
       z-index: 10;
     }
-    .celebrate.show{
-      opacity: 1;
-    }
+    .celebrate.show{ opacity: 1; }
 
-    /* نجوم طائرة */
-    .star{
-      position:absolute;
-      width: 18px;
-      height: 18px;
-      background: var(--star);
-      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 92%, 50% 71%, 21% 92%, 32% 57%, 2% 35%, 39% 35%);
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
-      opacity: .95;
-      animation: fly 650ms ease-out forwards;
-    }
-
-    /* لمعة وردية بسيطة */
     .flash{
       position:absolute;
-      inset:0;
-      background: radial-gradient(circle at 50% 40%, rgba(255,79,163,.22), transparent 55%);
+      inset:-10%;
+      background:
+        radial-gradient(circle at 50% 40%, rgba(255,79,163,.28), transparent 55%),
+        radial-gradient(circle at 30% 60%, rgba(255,211,77,.24), transparent 60%),
+        radial-gradient(circle at 70% 55%, rgba(255,255,255,.25), transparent 62%);
       opacity: 0;
-      animation: flash 650ms ease-out forwards;
-    }
-
-    @keyframes fly{
-      0%   { transform: translate(var(--sx), var(--sy)) scale(.85) rotate(0deg); opacity: 0; }
-      12%  { opacity: 1; }
-      100% { transform: translate(var(--ex), var(--ey)) scale(1.25) rotate(210deg); opacity: 0; }
+      animation: flash 1100ms ease-out forwards;
+      filter: blur(.2px);
     }
     @keyframes flash{
-      0% { opacity: 0; }
-      18% { opacity: 1; }
-      100% { opacity: 0; }
+      0% { opacity: 0; transform: scale(.98); }
+      12% { opacity: 1; transform: scale(1.02); }
+      100% { opacity: 0; transform: scale(1.08); }
     }
 
-    /* صفحة النهاية (بدون نتيجة) */
+    /* نجوم كبيرة + لامعات */
+    .star{
+      position:absolute;
+      background: var(--star);
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 92%, 50% 71%, 21% 92%, 32% 57%, 2% 35%, 39% 35%);
+      filter: drop-shadow(0 10px 16px rgba(0,0,0,.14));
+      opacity: .95;
+      animation: fly 1100ms cubic-bezier(.12,.68,.22,1) forwards;
+    }
+    .spark{
+      position:absolute;
+      width: 10px; height: 10px;
+      background: var(--spark);
+      border-radius: 50%;
+      filter: drop-shadow(0 10px 14px rgba(0,0,0,.12));
+      opacity: .9;
+      animation: pop 900ms ease-out forwards;
+    }
+    @keyframes fly{
+      0%   { transform: translate(var(--sx), var(--sy)) scale(.9) rotate(0deg); opacity: 0; }
+      10%  { opacity: 1; }
+      100% { transform: translate(var(--ex), var(--ey)) scale(1.55) rotate(260deg); opacity: 0; }
+    }
+    @keyframes pop{
+      0%   { transform: translate(var(--sx), var(--sy)) scale(.6); opacity: 0; }
+      16%  { opacity: 1; }
+      100% { transform: translate(var(--ex), var(--ey)) scale(1.35); opacity: 0; }
+    }
+
+    /* شارة (صح!) */
+    .badge{
+      position:absolute;
+      top: 18px;
+      left: 18px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(255,79,163,.35);
+      color: #b0125f;
+      font-weight: 900;
+      font-size: 20px;
+      opacity: 0;
+      transform: translateY(-6px) scale(.98);
+      animation: badge 1100ms ease-out forwards;
+    }
+    @keyframes badge{
+      0%{ opacity:0; transform: translateY(-6px) scale(.98); }
+      14%{ opacity:1; transform: translateY(0) scale(1.02); }
+      100%{ opacity:0; transform: translateY(0) scale(1.06); }
+    }
+
+    /* نهاية */
     .end{
       text-align:center;
       padding-top: 44px;
       position: relative;
       z-index: 1;
     }
-    .end h2{
-      margin: 0 0 12px;
-      font-size: 34px;
-      font-weight: 900;
-    }
+    .end h2{ margin: 0 0 12px; font-size: 34px; font-weight: 900; }
     .end button{
       font-size: 22px;
       padding: 10px 14px;
@@ -207,12 +272,23 @@
     }
 
     @media (prefers-reduced-motion: reduce){
-      .star, .flash { animation: none !important; }
+      .star, .spark, .flash, .badge { animation: none !important; }
       label.opt:hover{ transform:none; box-shadow:none; }
+      .page-icon{ animation: none !important; }
     }
   </style>
 </head>
 <body>
+  <!-- زينة عامة -->
+  <div class="page-decor" aria-hidden="true">
+    <div class="page-icon" style="left:6%; top:12%; --rot:-10deg; --dur:3.6s;">⭐</div>
+    <div class="page-icon" style="left:88%; top:10%; --rot:12deg; --dur:4.2s;">✨</div>
+    <div class="page-icon" style="left:10%; top:76%; --rot:8deg; --dur:3.9s;">🎀</div>
+    <div class="page-icon" style="left:86%; top:78%; --rot:-8deg; --dur:4.6s;">🌸</div>
+    <div class="page-icon" style="left:46%; top:6%; --rot:6deg; --dur:4.8s;">💖</div>
+    <div class="page-icon" style="left:46%; top:88%; --rot:-6deg; --dur:5.1s;">✨</div>
+  </div>
+
   <div class="wrap">
     <header>
       <h1>كويز التنوين</h1>
@@ -224,63 +300,51 @@
 
 <script>
   const QUESTIONS = [
-    {
-      prompt: "ما نوع التنوين في كلمة: (كِتابٌ)؟",
+    { prompt: "ما نوع التنوين في كلمة: (كِتابٌ)؟",
       options: ["تنوين ضمّ (ـٌ)", "تنوين فتح (ـً)", "تنوين كسر (ـٍ)"],
       answerIndex: 0
     },
-    {
-      prompt: "اختاري الكلمة التي فيها تنوين فتح:",
+    { prompt: "اختاري الكلمة التي فيها تنوين فتح:",
       options: ["بَيْتٌ", "قَلَمًا", "طَالِبٍ"],
       answerIndex: 1
     },
-    {
-      prompt: "اختاري الكلمة التي فيها تنوين كسر:",
+    { prompt: "اختاري الكلمة التي فيها تنوين كسر:",
       options: ["وَلَدٌ", "مَدْرَسَةً", "طِفْلٍ"],
       answerIndex: 2
     },
-    {
-      prompt: "كم نوعًا للتنوين ندرس هنا؟",
+    { prompt: "كم نوعًا للتنوين ندرس هنا؟",
       options: ["نوع واحد", "نوعان", "ثلاثة أنواع"],
       answerIndex: 2
     },
-    {
-      prompt: "اختاري الشكل الصحيح لنهاية كلمة (باب) عند تنوين الضم:",
+    { prompt: "اختاري الشكل الصحيح لنهاية كلمة (باب) عند تنوين الضم:",
       options: ["بابٌ", "بابًا", "بابٍ"],
       answerIndex: 0
     },
-    {
-      prompt: "اختاري الشكل الصحيح لنهاية كلمة (نور) عند تنوين الفتح:",
+    { prompt: "اختاري الشكل الصحيح لنهاية كلمة (نور) عند تنوين الفتح:",
       options: ["نورٌ", "نورًا", "نورٍ"],
       answerIndex: 1
     },
-    {
-      prompt: "اختاري الشكل الصحيح لنهاية كلمة (بيت) عند تنوين الكسر:",
+    { prompt: "اختاري الشكل الصحيح لنهاية كلمة (بيت) عند تنوين الكسر:",
       options: ["بيتٌ", "بيتًا", "بيتٍ"],
       answerIndex: 2
     },
-    {
-      prompt: "أي كلمة تنتهي بتنوين ضم؟",
+    { prompt: "أي كلمة تنتهي بتنوين ضم؟",
       options: ["مُعَلِّمٌ", "مُعَلِّمًا", "مُعَلِّمٍ"],
       answerIndex: 0
     },
-    {
-      prompt: "اختاري الجملة الصحيحة بالتنوين:",
+    { prompt: "اختاري الجملة الصحيحة بالتنوين:",
       options: ["قَرَأْتُ كِتابٌ.", "قَرَأْتُ كِتابًا.", "قَرَأْتُ كِتابٍ."],
       answerIndex: 1
     },
-    {
-      prompt: "اختاري الجملة التي فيها تنوين كسر:",
+    { prompt: "اختاري الجملة التي فيها تنوين كسر:",
       options: ["فِي فَصْلٍ نَتَعَلَّمُ.", "فِي فَصْلٌ نَتَعَلَّمُ.", "فِي فَصْلًا نَتَعَلَّمُ."],
       answerIndex: 0
     },
-    {
-      prompt: "اختاري الكلمة التي آخرها (ـً):",
+    { prompt: "اختاري الكلمة التي آخرها (ـً):",
       options: ["قَلَمًا", "قَلَمٌ", "قَلَمٍ"],
       answerIndex: 0
     },
-    {
-      prompt: "أي رمز يدل على تنوين الكسر؟",
+    { prompt: "أي رمز يدل على تنوين الكسر؟",
       options: ["ـٌ", "ـً", "ـٍ"],
       answerIndex: 2
     }
@@ -315,7 +379,6 @@
       <div class="prompt">${q.prompt}</div>
       <div class="opts" id="opts"></div>
 
-      <!-- طبقة الاحتفال -->
       <div class="celebrate" id="celebrate" aria-hidden="true">
         <div class="flash"></div>
       </div>
@@ -324,6 +387,7 @@
     const optsEl = document.getElementById("opts");
     q.options.forEach((opt, j) => {
       const id = `q${idx}_o${j}`;
+
       const label = document.createElement("label");
       label.className = "opt";
       label.setAttribute("for", id);
@@ -347,10 +411,9 @@
 
   function onAnswer(isCorrect){
     if(isCorrect){
-      playCelebrate();
-      setTimeout(next, 650);
+      playCelebrateBig();
+      setTimeout(next, 1100);
     }else{
-      // بدون عقوبة/رسالة: انتقال سريع
       setTimeout(next, 220);
     }
   }
@@ -361,57 +424,87 @@
     window.scrollTo({top:0, behavior:"smooth"});
   }
 
-  function playCelebrate(){
+  function playCelebrateBig(){
     const layer = document.getElementById("celebrate");
     if(!layer) return;
 
-    // تنظيف أي نجوم قديمة
-    layer.querySelectorAll(".star").forEach(s => s.remove());
+    // تنظيف
+    layer.querySelectorAll(".star,.spark,.badge").forEach(x => x.remove());
 
-    // إظهار الطبقة
+    // إظهار
     layer.classList.add("show");
 
-    // توليد نجوم عشوائية
-    const starsCount = 14;
+    // شارة
+    const badge = document.createElement("div");
+    badge.className = "badge";
+    badge.textContent = "صح! 🌟";
+    layer.appendChild(badge);
+
+    // نجوم أكثر + أكبر
+    const starsCount = 26;
     for(let i=0; i<starsCount; i++){
       const s = document.createElement("div");
       s.className = "star";
 
-      // نقطة بداية (قريبة من منتصف البطاقة)
-      const sx = (Math.random()*40 - 20); // -20..20
-      const sy = (Math.random()*20 - 10); // -10..10
-
-      // نقطة نهاية (تنتشر للأطراف)
-      const ex = (Math.random()*520 - 260); // -260..260
-      const ey = (Math.random()*360 - 180); // -180..180
-
-      // موقع النجمة داخل البطاقة
-      const left = 50 + (Math.random()*26 - 13); // حول المنتصف
-      const top  = 45 + (Math.random()*18 - 9);
+      const left = 50 + (Math.random()*70 - 35); // انتشار أوسع
+      const top  = 45 + (Math.random()*50 - 25);
 
       s.style.left = left + "%";
       s.style.top  = top + "%";
 
-      // تمرير قيم للحركة
+      const sx = (Math.random()*60 - 30);
+      const sy = (Math.random()*40 - 20);
+
+      const ex = (Math.random()*760 - 380);
+      const ey = (Math.random()*520 - 260);
+
       s.style.setProperty("--sx", sx + "px");
       s.style.setProperty("--sy", sy + "px");
       s.style.setProperty("--ex", ex + "px");
       s.style.setProperty("--ey", ey + "px");
 
-      // اختلاف بسيط في الأحجام والتأخير
-      const size = 14 + Math.floor(Math.random()*14);
+      const size = 18 + Math.floor(Math.random()*26); // أكبر
       s.style.width = size + "px";
       s.style.height = size + "px";
-      s.style.animationDelay = (Math.random()*90) + "ms";
 
+      s.style.animationDelay = (Math.random()*120) + "ms";
       layer.appendChild(s);
     }
 
-    // إخفاء الطبقة بعد الانتهاء
+    // لامعات (دوائر) إضافية
+    const sparksCount = 18;
+    for(let i=0; i<sparksCount; i++){
+      const p = document.createElement("div");
+      p.className = "spark";
+
+      const left = 50 + (Math.random()*70 - 35);
+      const top  = 45 + (Math.random()*50 - 25);
+      p.style.left = left + "%";
+      p.style.top  = top + "%";
+
+      const sx = (Math.random()*40 - 20);
+      const sy = (Math.random()*20 - 10);
+      const ex = (Math.random()*640 - 320);
+      const ey = (Math.random()*420 - 210);
+
+      p.style.setProperty("--sx", sx + "px");
+      p.style.setProperty("--sy", sy + "px");
+      p.style.setProperty("--ex", ex + "px");
+      p.style.setProperty("--ey", ey + "px");
+
+      const size = 8 + Math.floor(Math.random()*10);
+      p.style.width = size + "px";
+      p.style.height = size + "px";
+      p.style.animationDelay = (Math.random()*120) + "ms";
+
+      layer.appendChild(p);
+    }
+
+    // إخفاء
     setTimeout(() => {
       layer.classList.remove("show");
-      layer.querySelectorAll(".star").forEach(s => s.remove());
-    }, 700);
+      layer.querySelectorAll(".star,.spark,.badge").forEach(x => x.remove());
+    }, 1200);
   }
 
   render();
