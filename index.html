@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>كويز درس التنوين (كل سؤال بصفحة)</title>
+  <style>
+    :root{
+      --bg:#ffffff;
+      --card:#f6f7fb;
+      --text:#111;
+      --muted:#555;
+      --border:#d9dbe7;
+    }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 24px;
+    }
+    .wrap{ max-width: 920px; margin: 24px auto; padding: 0 16px; }
+    header{
+      display:flex; align-items:flex-start; justify-content:space-between;
+      gap:12px; flex-wrap:wrap; margin-bottom: 16px;
+    }
+    h1{ margin:0; font-size: 34px; }
+    .meta{ color: var(--muted); font-size: 18px; margin-top: 6px; }
+    .scorebar{
+      display:flex; gap: 10px; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; margin: 10px 0 16px; padding: 12px 14px;
+      border: 1px solid var(--border); border-radius: 14px; background:#fff;
+    }
+    .pill{
+      padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border);
+      background: #f6f7fb; font-size: 18px; color: var(--muted); white-space:nowrap;
+    }
+    .card{
+      background: #f6f7fb; border: 1px solid var(--border); border-radius: 18px;
+      padding: 18px; margin: 0; min-height: calc(100vh - 190px);
+      display:flex; flex-direction:column; justify-content:flex-start;
+    }
+    .qhead{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; flex-wrap:wrap; margin-bottom: 10px;
+    }
+    .qnum{ font-weight:800; font-size: 22px; }
+    .prompt{ font-size: 28px; margin: 10px 0 8px; font-weight: 700; }
+    .opts{ margin-top: 10px; display:grid; gap: 12px; }
+    label.opt{
+      display:flex; gap: 10px; align-items:flex-start; padding: 14px 12px;
+      border: 1px solid var(--border); border-radius: 14px; background:#fff; cursor:pointer;
+    }
+    input[type="radio"]{ transform: scale(1.35); margin-top: 7px; }
+    .nav{
+      margin-top: 18px; display:flex; gap: 10px; flex-wrap:wrap;
+      align-items:center; justify-content:space-between;
+    }
+    button{
+      font-size: 20px; padding: 10px 14px; border-radius: 12px;
+      border: 1px solid var(--border); background:#fff; cursor:pointer;
+    }
+    button:disabled{ opacity:.5; cursor:not-allowed; }
+    .small{ font-size: 18px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>كويز: درس التنوين</h1>
+        <div class="meta">اختاري الإجابة، وسيتم الانتقال تلقائيًا للسؤال التالي.</div>
+      </div>
+      <div class="pill" id="progressPill">سؤال 1 / 1</div>
+    </header>
+
+    <div class="scorebar">
+      <div>
+        <strong>النتيجة:</strong>
+        <span id="scoreTxt">0</span> / <span id="totalTxt">0</span>
+        <span class="small">— تُعرض بعد الإنهاء</span>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button id="resetBtn">إعادة المحاولة</button>
+        <button id="shuffleBtn">ترتيب جديد</button>
+      </div>
+    </div>
+
+    <div class="card" id="card"></div>
+  </div>
+
+<script>
+  const QUESTIONS = [
+    { prompt: "ما نوع التنوين في كلمة: (كِتابٌ)؟",
+      options: ["تنوين ضمّ (ـٌ)", "تنوين فتح (ـً)", "تنوين كسر (ـٍ)"],
+      answerIndex: 0
+    },
+    { prompt: "اختاري الكلمة التي فيها تنوين فتح:",
+      options: ["بَيْتٌ", "قَلَمًا", "طَالِبٍ"],
+      answerIndex: 1
+    },
+    { prompt: "اختاري الكلمة التي فيها تنوين كسر:",
+      options: ["وَلَدٌ", "مَدْرَسَةً", "طِفْلٍ"],
+      answerIndex: 2
+    },
+    { prompt: "كم نوعًا للتنوين ندرس هنا؟",
+      options: ["نوع واحد", "نوعان", "ثلاثة أنواع"],
+      answerIndex: 2
+    },
+    { prompt: "اختاري الشكل الصحيح لنهاية كلمة (باب) عند تنوين الضم:",
+      options: ["بابٌ", "بابًا", "بابٍ"],
+      answerIndex: 0
+    },
+    { prompt: "اختاري الشكل الصحيح لنهاية كلمة (نور) عند تنوين الفتح:",
+      options: ["نورٌ", "نورًا", "نورٍ"],
+      answerIndex: 1
+    },
+    { prompt: "اختاري الشكل الصحيح لنهاية كلمة (بيت) عند تنوين الكسر:",
+      options: ["بيتٌ", "بيتًا", "بيتٍ"],
+      answerIndex: 2
+    },
+    { prompt: "أي كلمة تنتهي بتنوين ضم؟",
+      options: ["مُعَلِّمٌ", "مُعَلِّمًا", "مُعَلِّمٍ"],
+      answerIndex: 0
+    },
+    { prompt: "اختاري الجملة الصحيحة بالتنوين:",
+      options: ["قَرَأْتُ كِتابٌ.", "قَرَأْتُ كِتابًا.", "قَرَأْتُ كِتابٍ."],
+      answerIndex: 1
+    },
+    { prompt: "اختاري الجملة التي فيها تنوين كسر:",
+      options: ["فِي فَصْلٍ نَتَعَلَّمُ.", "فِي فَصْلٌ نَتَعَلَّمُ.", "فِي فَصْلًا نَتَعَلَّمُ."],
+      answerIndex: 0
+    },
+    { prompt: "اختاري الكلمة التي آخرها (ـً):",
+      options: ["قَلَمًا", "قَلَمٌ", "قَلَمٍ"],
+      answerIndex: 0
+    },
+    { prompt: "أي رمز يدل على تنوين الكسر؟",
+      options: ["ـٌ", "ـً", "ـٍ"],
+      answerIndex: 2
+    }
+  ];
+
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  let state = {
+    questions: QUESTIONS.slice(),
+    idx: 0,
+    answers: {} // {questionIndex: selectedOptionIndex}
+  };
+
+  const cardEl = document.getElementById("card");
+  const progressPill = document.getElementById("progressPill");
+  const scoreTxt = document.getElementById("scoreTxt");
+  const totalTxt = document.getElementById("totalTxt");
+  const resetBtn = document.getElementById("resetBtn");
+  const shuffleBtn = document.getElementById("shuffleBtn");
+
+  totalTxt.textContent = state.questions.length.toString();
+
+  function calcScore(){
+    let s = 0;
+    for(const k in state.answers){
+      const qi = parseInt(k, 10);
+      const selected = state.answers[qi];
+      if(selected === state.questions[qi].answerIndex) s++;
+    }
+    return s;
+  }
+
+  function updateTop(){
+    progressPill.textContent = `سؤال ${state.idx+1} / ${state.questions.length}`;
+    scoreTxt.textContent = calcScore().toString();
+  }
+
+  function renderQuestion(){
+    const q = state.questions[state.idx];
+    updateTop();
+
+    cardEl.innerHTML = `
+      <div class="qhead">
+        <div class="qnum">سؤال ${state.idx+1}</div>
+      </div>
+
+      <div class="prompt">${q.prompt}</div>
+
+      <div class="opts" id="opts"></div>
+
+      <div class="nav">
+        <button id="prevBtn">السابق</button>
+        <div class="small">اختاري إجابة للانتقال تلقائيًا</div>
+        <button id="nextBtn">التالي</button>
+      </div>
+    `;
+
+    const optsEl = document.getElementById("opts");
+    q.options.forEach((opt, j) => {
+      const id = `o${j}`;
+      const label = document.createElement("label");
+      label.className = "opt";
+      label.setAttribute("for", id);
+
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = "q";
+      radio.id = id;
+      radio.value = j.toString();
+
+      const span = document.createElement("span");
+      span.textContent = opt;
+
+      label.appendChild(radio);
+      label.appendChild(span);
+      optsEl.appendChild(label);
+    });
+
+    // استرجاع اختيار سابق إن وجد
+    const saved = state.answers[state.idx];
+    if(saved !== undefined){
+      const r = document.querySelector(`input[name="q"][value="${saved}"]`);
+      if(r) r.checked = true;
+    }
+
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+
+    prevBtn.disabled = state.idx === 0;
+    nextBtn.disabled = (state.answers[state.idx] === undefined);
+    nextBtn.textContent = (state.idx === state.questions.length - 1) ? "إنهاء" : "التالي";
+
+    prevBtn.addEventListener("click", () => go(-1));
+    nextBtn.addEventListener("click", () => {
+      if(state.idx === state.questions.length - 1) showFinal();
+      else go(1);
+    });
+
+    // عند اختيار إجابة: احفظ + حدّث النتيجة + انتقل تلقائيًا
+    document.querySelectorAll('input[name="q"]').forEach(r => {
+      r.addEventListener("change", () => {
+        const selected = parseInt(r.value, 10);
+        state.answers[state.idx] = selected;
+        updateTop();
+
+        // انتقال تلقائي
+        setTimeout(() => {
+          if(state.idx === state.questions.length - 1){
+            showFinal();
+          }else{
+            go(1);
+          }
+        }, 200);
+      });
+    });
+  }
+
+  function go(step){
+    state.idx += step;
+    if(state.idx < 0) state.idx = 0;
+    if(state.idx >= state.questions.length) state.idx = state.questions.length - 1;
+
+    renderQuestion();
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  function resetAll(){
+    state.idx = 0;
+    state.answers = {};
+    updateTop();
+    renderQuestion();
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  function newOrder(){
+    state.questions = shuffle(QUESTIONS);
+    state.idx = 0;
+    state.answers = {};
+    totalTxt.textContent = state.questions.length.toString();
+    renderQuestion();
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  function showFinal(){
+    updateTop();
+    const score = calcScore();
+    cardEl.innerHTML = `
+      <div class="qhead">
+        <div class="qnum">انتهى الكويز</div>
+        <div class="pill">نتيجتك: ${score} / ${state.questions.length}</div>
+      </div>
+
+      <div class="prompt">تم إنهاء جميع الأسئلة.</div>
+
+      <div class="nav" style="margin-top:18px;">
+        <button id="backBtn">الرجوع لآخر سؤال</button>
+        <button id="reset2Btn">إعادة المحاولة</button>
+      </div>
+    `;
+    document.getElementById("backBtn").addEventListener("click", () => {
+      state.idx = state.questions.length - 1;
+      renderQuestion();
+    });
+    document.getElementById("reset2Btn").addEventListener("click", resetAll);
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+
+  resetBtn.addEventListener("click", resetAll);
+  shuffleBtn.addEventListener("click", newOrder);
+
+  renderQuestion();
+</script>
+</body>
+</html>
